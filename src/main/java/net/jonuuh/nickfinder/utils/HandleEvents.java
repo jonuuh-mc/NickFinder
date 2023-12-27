@@ -61,34 +61,32 @@ public class HandleEvents
     {
         if (event.gui instanceof GuiScreenBook && NickFinder.running)
         {
-//            NickFinder.chatLogger.addLog("book gui open event", EnumChatFormatting.GREEN, false);
             ItemStack bookItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
-            if (bookItem.getItem() instanceof ItemEditableBook && bookItem.hasTagCompound())
+            if (bookItem.getItem() instanceof ItemEditableBook)
             {
-//                NickFinder.chatLogger.addLog("written book detected" , EnumChatFormatting.GREEN, false);
                 String bookPagesString = bookItem.getTagCompound().getTagList("pages", 8).toString();
                 if (bookPagesString.contains("generated a random username"))
                 {
-//                    NickFinder.chatLogger.addLog("nick detected" , EnumChatFormatting.GREEN, false);
                     String nick = bookPagesString.substring(bookPagesString.indexOf("actuallyset") + "actuallyset".length() + 1, bookPagesString.indexOf("respawn") - 1);
                     NickFinder.chatLogger.addLog(++NickFinder.nicks + ": " + nick);
                     NickFinder.fileLoggerNicks.addLogLn(nick);
                     NickFinder.fileLoggerNicksLatest.addLogLn(nick);
 
-                    if (nick.matches("^[A-Z][a-z]+$")){
+                    if (nick.matches("^[A-Z][a-z]+$"))
+                    {
                         Minecraft.getMinecraft().thePlayer.sendChatMessage("/nick actuallyset " + nick + " respawn");
                         NickFinder.toggle();
                     }
                 }
-                event.setCanceled(true);
             }
+            event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onClientChat(ClientChatReceivedEvent event)
     {
-        if (event.message.getUnformattedText().equals("You are AFK. Move around to return from AFK."))
+        if (event.message.getUnformattedText().equals("You are AFK. Move around to return from AFK.") && NickFinder.running)
         {
             NickFinder.running = false;
             attemptFileLoggerClose(NickFinder.fileLoggerNicks);
@@ -112,7 +110,8 @@ public class HandleEvents
         attemptFileLoggerClose(NickFinder.fileLoggerNicksLatest);
     }
 
-    private void attemptFileLoggerClose(FileLogger logger){
+    private void attemptFileLoggerClose(FileLogger logger)
+    {
         if (logger != null)
         {
             logger.close();

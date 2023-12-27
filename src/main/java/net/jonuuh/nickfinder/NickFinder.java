@@ -38,7 +38,7 @@ public class NickFinder
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-        new File ("nickfinder").mkdir();
+        new File("nickfinder").mkdir();
 
         ClientRegistry.registerKeyBinding(debugKey);
         ClientRegistry.registerKeyBinding(startStopKey);
@@ -55,8 +55,7 @@ public class NickFinder
             fileLoggerNicksLatest = new FileLogger("nicks-latest", false);
             antiAFK = new AntiAFK();
             chatLogger.addLog("new Loggers + AntiAFK, ticker + nicks reset, running", EnumChatFormatting.YELLOW, false);
-        }
-        else
+        } else
         {
             fileLoggerNicks.close();
             fileLoggerNicksLatest.close();

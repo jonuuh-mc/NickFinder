@@ -2,16 +2,19 @@ package net.jonuuh.nickfinder.utils;
 
 import java.io.*;
 
-public class FileLogger {
+public class FileLogger
+{
     private PrintWriter writer = null;
 
     public FileLogger(String fileName, boolean doAppending)
     {
         String relFilePath = ".\\nickfinder\\" + fileName + ".log";
 
-        try {
+        try
+        {
             writer = new PrintWriter(new BufferedWriter(new FileWriter(relFilePath, doAppending)));
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
     }

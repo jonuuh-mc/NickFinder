@@ -33,8 +33,7 @@ public class ChatLogger
         try
         {
             Minecraft.getMinecraft().thePlayer.addChatMessage(logPreComponent.appendSibling(logComponent));
-        }
-        catch (NullPointerException e)
+        } catch (NullPointerException e)
         {
             e.printStackTrace();
         }
