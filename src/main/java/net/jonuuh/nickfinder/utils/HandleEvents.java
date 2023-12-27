@@ -21,6 +21,7 @@ public class HandleEvents
         if (NickFinder.debugKey.isPressed())
         {
             NickFinder.chatLogger.addLog("debugKey pressed");
+            NickFinder.chatLogger.addLog(NickFinder.miscUtils.getOnlinePlayers().toString());
         }
 
         if (NickFinder.startStopKey.isPressed())
@@ -46,7 +47,14 @@ public class HandleEvents
 
             if (NickFinder.ticks % (40 * NickFinder.antiAFKIntervalSecs) == 0 && !AntiAFK.running)
             {
-                NickFinder.antiAFK.startRandomMove(NickFinder.ticks);
+                if (NickFinder.miscUtils.getNearbyPlayers(5).size() > 0)
+                {
+                    NickFinder.chatLogger.addLog("player detected nearby", EnumChatFormatting.DARK_RED, true);
+                    NickFinder.toggle();
+                } else
+                {
+                    NickFinder.antiAFK.startRandomMove(NickFinder.ticks);
+                }
             }
 
             if (NickFinder.ticks == NickFinder.antiAFK.tickStart + (40 * NickFinder.antiAFKDurationSecs) && AntiAFK.running)
@@ -61,13 +69,13 @@ public class HandleEvents
     {
         if (event.gui instanceof GuiScreenBook && NickFinder.running)
         {
-            ItemStack bookItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
+            final ItemStack bookItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
             if (bookItem.getItem() instanceof ItemEditableBook)
             {
-                String bookPagesString = bookItem.getTagCompound().getTagList("pages", 8).toString();
+                final String bookPagesString = bookItem.getTagCompound().getTagList("pages", 8).toString();
                 if (bookPagesString.contains("generated a random username"))
                 {
-                    String nick = bookPagesString.substring(bookPagesString.indexOf("actuallyset") + "actuallyset".length() + 1, bookPagesString.indexOf("respawn") - 1);
+                    final String nick = bookPagesString.substring(bookPagesString.indexOf("actuallyset") + "actuallyset".length() + 1, bookPagesString.indexOf("respawn") - 1);
                     NickFinder.chatLogger.addLog(++NickFinder.nicks + ": " + nick);
                     NickFinder.fileLoggerNicks.addLogLn(nick);
                     NickFinder.fileLoggerNicksLatest.addLogLn(nick);
@@ -109,6 +117,15 @@ public class HandleEvents
         attemptFileLoggerClose(NickFinder.fileLoggerNicks);
         attemptFileLoggerClose(NickFinder.fileLoggerNicksLatest);
     }
+
+//    @SubscribeEvent
+//    public void onEntityJoin(EntityJoinWorldEvent event)
+//    {
+//        if (event.entity instanceof EntityOtherPlayerMP)
+//        {
+//            NickFinder.chatLogger.addLog("other player joined: " + event.entity.getName());
+//        }
+//    }
 
     private void attemptFileLoggerClose(FileLogger logger)
     {
