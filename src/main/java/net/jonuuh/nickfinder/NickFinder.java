@@ -67,4 +67,3 @@ public class NickFinder
         running = !running;
     }
 }
-
