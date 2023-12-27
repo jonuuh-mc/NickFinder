@@ -1,13 +1,13 @@
 [
     {
-        "modid": "examplemod",
-        "name": "Example Mod",
-        "description": "An example mod.",
+        "modid": "nickfinder",
+        "name": "NickFinder",
+        "description": "A mod to automatically find desirable nicknames on hypixel.",
         "version": "${version}",
         "mcversion": "${mcversion}",
         "url": "",
         "updateUrl": "",
-        "authorList": ["The author"],
+        "authorList": ["jonuuh"],
         "credits": "",
         "logoFile": "",
         "screenshots": [],
