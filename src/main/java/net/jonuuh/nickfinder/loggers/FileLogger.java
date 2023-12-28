@@ -1,4 +1,4 @@
-package net.jonuuh.nickfinder.utils;
+package net.jonuuh.nickfinder.loggers;
 
 import java.io.*;
 
@@ -13,7 +13,8 @@ public class FileLogger
         try
         {
             writer = new PrintWriter(new BufferedWriter(new FileWriter(relFilePath, doAppending)));
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }

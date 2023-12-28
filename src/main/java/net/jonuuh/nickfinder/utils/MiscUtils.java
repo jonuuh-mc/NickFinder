@@ -11,10 +11,10 @@ import java.util.List;
 
 public class MiscUtils
 {
-    public ArrayList<String> getOnlinePlayers()
+    public List<String> getOnlinePlayers()
     {
         final Collection<NetworkPlayerInfo> networkPlayerInfoCollection = Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap();
-        ArrayList<String> onlinePlayers = new ArrayList<String>();
+        List<String> onlinePlayers = new ArrayList<>();
         for (NetworkPlayerInfo networkPlayerInfo : networkPlayerInfoCollection)
         {
             onlinePlayers.add(networkPlayerInfo.getGameProfile().getName());

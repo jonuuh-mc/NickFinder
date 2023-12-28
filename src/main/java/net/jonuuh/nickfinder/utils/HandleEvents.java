@@ -1,8 +1,10 @@
 package net.jonuuh.nickfinder.utils;
 
-import net.jonuuh.nickfinder.NickFinder;
+import net.jonuuh.nickfinder.loggers.ChatLogger;
+import net.jonuuh.nickfinder.loggers.FileLogger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreenBook;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
@@ -13,53 +15,79 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public class HandleEvents
 {
+    private static final double nickDelaySecs = 1;
+    private static final double antiAFKIntervalSecs = (60 * 1.5);
+    private static final double antiAFKDurationSecs = 0.25;
+
+    private final Set<String> limboStrings = new HashSet<>(Arrays.asList("You are AFK. Move around to return from AFK.", "A kick occurred in your connection, so you have been routed to limbo!"));
+    private final MiscUtils miscUtils;
+    private final ChatLogger chatLogger;
+    private final KeyBinding debugKey;
+    private final KeyBinding startStopKey;
+
+    private FileLogger fileLoggerNicks = null;
+    private FileLogger fileLoggerNicksLatest = null;
+    private AntiAFK antiAFK = null;
+    private boolean running = false;
+    private int ticks = 0;
+    private int nicks = 0;
+
+    public HandleEvents(KeyBinding debugKey, KeyBinding startStopKey)
+    {
+        this.miscUtils = new MiscUtils();
+        this.chatLogger = new ChatLogger(EnumChatFormatting.GOLD);
+        this.debugKey = debugKey;
+        this.startStopKey = startStopKey;
+    }
+
     @SubscribeEvent
     public void onKeyPressed(KeyInputEvent event)
     {
-        if (NickFinder.debugKey.isPressed())
+        if (debugKey.isPressed())
         {
-            NickFinder.chatLogger.addLog("debugKey pressed");
-            NickFinder.chatLogger.addLog(NickFinder.miscUtils.getOnlinePlayers().toString());
+            chatLogger.addLog("debugKey pressed");
         }
 
-        if (NickFinder.startStopKey.isPressed())
+        if (startStopKey.isPressed())
         {
-            NickFinder.toggle();
+            toggle();
         }
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event)
     {
-        if (NickFinder.running)
+        if (running && !Minecraft.getMinecraft().isGamePaused())
         {
-            NickFinder.ticks++;
-            if (NickFinder.ticks % (40 * NickFinder.nickDelaySecs) == 0 && !AntiAFK.running)
+            ticks++;
+            if (ticks % (40 * nickDelaySecs) == 0 && !AntiAFK.running)
             {
-                if (!Minecraft.getMinecraft().isGamePaused())
+                chatLogger.addLog("requesting new nick...", EnumChatFormatting.GRAY, false);
+                Minecraft.getMinecraft().thePlayer.sendChatMessage("/nick help setrandom");
+            }
+
+            if (ticks % (40 * antiAFKIntervalSecs) == 0 && !AntiAFK.running)
+            {
+                if (miscUtils.getNearbyPlayers(10).size() > 0)
                 {
-                    NickFinder.chatLogger.addLog("requesting new nick...", EnumChatFormatting.GRAY, false);
-                    Minecraft.getMinecraft().thePlayer.sendChatMessage("/nick help setrandom");
+                    chatLogger.addLog("player detected nearby", EnumChatFormatting.DARK_RED, true);
+                    toggle();
+                }
+                else
+                {
+                    antiAFK.startRandomMove(ticks);
                 }
             }
 
-            if (NickFinder.ticks % (40 * NickFinder.antiAFKIntervalSecs) == 0 && !AntiAFK.running)
+            if (ticks == antiAFK.tickStart + (40 * antiAFKDurationSecs) && AntiAFK.running)
             {
-                if (NickFinder.miscUtils.getNearbyPlayers(5).size() > 0)
-                {
-                    NickFinder.chatLogger.addLog("player detected nearby", EnumChatFormatting.DARK_RED, true);
-                    NickFinder.toggle();
-                } else
-                {
-                    NickFinder.antiAFK.startRandomMove(NickFinder.ticks);
-                }
-            }
-
-            if (NickFinder.ticks == NickFinder.antiAFK.tickStart + (40 * NickFinder.antiAFKDurationSecs) && AntiAFK.running)
-            {
-                NickFinder.antiAFK.endRandomMove();
+                antiAFK.endRandomMove();
             }
         }
     }
@@ -67,23 +95,23 @@ public class HandleEvents
     @SubscribeEvent
     public void onGUIOpened(GuiOpenEvent event)
     {
-        if (event.gui instanceof GuiScreenBook && NickFinder.running)
+        if (event.gui instanceof GuiScreenBook && running)
         {
-            final ItemStack bookItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
+            ItemStack bookItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
             if (bookItem.getItem() instanceof ItemEditableBook)
             {
-                final String bookPagesString = bookItem.getTagCompound().getTagList("pages", 8).toString();
+                String bookPagesString = bookItem.getTagCompound().getTagList("pages", 8).toString();
                 if (bookPagesString.contains("generated a random username"))
                 {
-                    final String nick = bookPagesString.substring(bookPagesString.indexOf("actuallyset") + "actuallyset".length() + 1, bookPagesString.indexOf("respawn") - 1);
-                    NickFinder.chatLogger.addLog(++NickFinder.nicks + ": " + nick);
-                    NickFinder.fileLoggerNicks.addLogLn(nick);
-                    NickFinder.fileLoggerNicksLatest.addLogLn(nick);
+                    String nick = bookPagesString.substring(bookPagesString.indexOf("actuallyset") + "actuallyset".length() + 1, bookPagesString.indexOf("respawn") - 1);
+                    chatLogger.addLog(++nicks + ": " + nick);
+                    fileLoggerNicks.addLogLn(nick);
+                    fileLoggerNicksLatest.addLogLn(nick);
 
                     if (nick.matches("^[A-Z][a-z]+$"))
                     {
                         Minecraft.getMinecraft().thePlayer.sendChatMessage("/nick actuallyset " + nick + " respawn");
-                        NickFinder.toggle();
+                        toggle();
                     }
                 }
             }
@@ -94,44 +122,39 @@ public class HandleEvents
     @SubscribeEvent
     public void onClientChat(ClientChatReceivedEvent event)
     {
-        if (event.message.getUnformattedText().equals("You are AFK. Move around to return from AFK.") && NickFinder.running)
+        if (running && limboStrings.contains(event.message.getUnformattedText()))
         {
-            NickFinder.running = false;
-            attemptFileLoggerClose(NickFinder.fileLoggerNicks);
-            attemptFileLoggerClose(NickFinder.fileLoggerNicksLatest);
-            NickFinder.chatLogger.addLog("AFK detected, Loggers closed, !running");
+            toggle();
         }
     }
-
-//    @SubscribeEvent
-//    public void onServerLogin(FMLNetworkEvent.ClientConnectedToServerEvent event)
-//    {
-//        NickFinder.chatLogger.addLog("player logged in!");
-//    }
 
     @SubscribeEvent
     public void onServerLogout(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
-//        NickFinder.chatLogger.addLog("player logged out!");
-        NickFinder.running = false;
-        attemptFileLoggerClose(NickFinder.fileLoggerNicks);
-        attemptFileLoggerClose(NickFinder.fileLoggerNicksLatest);
+        if (running)
+        {
+            toggle();
+        }
     }
 
-//    @SubscribeEvent
-//    public void onEntityJoin(EntityJoinWorldEvent event)
-//    {
-//        if (event.entity instanceof EntityOtherPlayerMP)
-//        {
-//            NickFinder.chatLogger.addLog("other player joined: " + event.entity.getName());
-//        }
-//    }
-
-    private void attemptFileLoggerClose(FileLogger logger)
+    private void toggle()
     {
-        if (logger != null)
+        chatLogger.addLog("nickfinder toggled", EnumChatFormatting.GOLD, true);
+        if (!running)
         {
-            logger.close();
+            fileLoggerNicks = new FileLogger("nicks", true);
+            fileLoggerNicksLatest = new FileLogger("nicks-latest", false);
+            antiAFK = new AntiAFK();
+            chatLogger.addLog("new Loggers + AntiAFK, ticker + nicks reset, running", EnumChatFormatting.YELLOW, false);
         }
+        else
+        {
+            fileLoggerNicks.close();
+            fileLoggerNicksLatest.close();
+            chatLogger.addLog("Loggers closed, ticker + nicks reset, !running", EnumChatFormatting.YELLOW, false);
+        }
+        ticks = 0;
+        nicks = 0;
+        running = !running;
     }
 }
