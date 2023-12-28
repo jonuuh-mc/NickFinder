@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Handle various minecraft events.
+ */
 public class HandleEvents
 {
     private static final double nickDelaySecs = 1;
@@ -29,7 +32,7 @@ public class HandleEvents
     private final MiscUtils miscUtils;
     private final ChatLogger chatLogger;
     private final KeyBinding debugKey;
-    private final KeyBinding startStopKey;
+    private final KeyBinding toggleKey;
 
     private FileLogger fileLoggerNicks = null;
     private FileLogger fileLoggerNicksLatest = null;
@@ -38,30 +41,47 @@ public class HandleEvents
     private int ticks = 0;
     private int nicks = 0;
 
-    public HandleEvents(KeyBinding debugKey, KeyBinding startStopKey)
+    /**
+     * Instantiates a new HandleEvents.
+     *
+     * @param debugKey  the debug key
+     * @param toggleKey the toggle key
+     */
+    public HandleEvents(KeyBinding debugKey, KeyBinding toggleKey)
     {
         this.miscUtils = new MiscUtils();
         this.chatLogger = new ChatLogger(EnumChatFormatting.GOLD);
         this.debugKey = debugKey;
-        this.startStopKey = startStopKey;
+        this.toggleKey = toggleKey;
     }
 
+    /**
+     * Key input event handler.
+     *
+     * @param event the event
+     */
     @SubscribeEvent
-    public void onKeyPressed(KeyInputEvent event)
+    public void onKeyInput(KeyInputEvent event)
     {
         if (debugKey.isPressed())
         {
             chatLogger.addLog("debugKey pressed");
         }
 
-        if (startStopKey.isPressed())
+        if (toggleKey.isPressed())
         {
             toggle();
         }
     }
 
+    /**
+     * Client tick event handler.<br>
+     * - Used to perform certain actions periodically (requesting a new nick or starting/stopping an antiAFK random move).
+     *
+     * @param event the event
+     */
     @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent event)
+    public void onClientTick(TickEvent.ClientTickEvent event)
     {
         if (running && !Minecraft.getMinecraft().isGamePaused())
         {
@@ -74,14 +94,14 @@ public class HandleEvents
 
             if (ticks % (40 * antiAFKIntervalSecs) == 0 && !AntiAFK.running)
             {
-                if (miscUtils.getNearbyPlayers(10).size() > 0)
+                if (miscUtils.getNearbyPlayers(10).size() == 0)
                 {
-                    chatLogger.addLog("player detected nearby", EnumChatFormatting.DARK_RED, true);
-                    toggle();
+                    antiAFK.startRandomMove(ticks);
                 }
                 else
                 {
-                    antiAFK.startRandomMove(ticks);
+                    chatLogger.addLog("player detected nearby", EnumChatFormatting.DARK_RED, true);
+                    toggle();
                 }
             }
 
@@ -92,10 +112,16 @@ public class HandleEvents
         }
     }
 
+    /**
+     * GUI opened event handler.<br>
+     * - The "heart" of the mod, gets a nick from a written book and uses it if its "desirable".
+     *
+     * @param event the event
+     */
     @SubscribeEvent
     public void onGUIOpened(GuiOpenEvent event)
     {
-        if (event.gui instanceof GuiScreenBook && running)
+        if (running && event.gui instanceof GuiScreenBook)
         {
             ItemStack bookItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
             if (bookItem.getItem() instanceof ItemEditableBook)
@@ -119,8 +145,14 @@ public class HandleEvents
         }
     }
 
+    /**
+     * Client chat received event handler.<br>
+     * - Toggles off the mod if the player was sent to limbo while it was running.
+     *
+     * @param event the event
+     */
     @SubscribeEvent
-    public void onClientChat(ClientChatReceivedEvent event)
+    public void onClientChatReceived(ClientChatReceivedEvent event)
     {
         if (running && limboStrings.contains(event.message.getUnformattedText()))
         {
@@ -128,8 +160,14 @@ public class HandleEvents
         }
     }
 
+    /**
+     * Client disconnection from server event handler.<br>
+     * - Toggles off the mod if the player logged out while it was running.
+     *
+     * @param event the event
+     */
     @SubscribeEvent
-    public void onServerLogout(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
+    public void onClientDisconnectionFromServer(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
         if (running)
         {
@@ -137,6 +175,9 @@ public class HandleEvents
         }
     }
 
+    /**
+     * Toggle the mod on or off.
+     */
     private void toggle()
     {
         chatLogger.addLog("nickfinder toggled", EnumChatFormatting.GOLD, true);

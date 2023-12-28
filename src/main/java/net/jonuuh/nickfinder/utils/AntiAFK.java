@@ -3,6 +3,9 @@ package net.jonuuh.nickfinder.utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 
+/**
+ * Perform random player movements.
+ */
 public class AntiAFK
 {
     private final int[] movementKeyCodes;
@@ -10,6 +13,9 @@ public class AntiAFK
     public int tickStart;
     public static boolean running = false;
 
+    /**
+     * Instantiates a new AntiAFK.
+     */
     public AntiAFK()
     {
         int keyCodeForward = Minecraft.getMinecraft().gameSettings.keyBindForward.getKeyCode();
@@ -19,6 +25,11 @@ public class AntiAFK
         this.movementKeyCodes = new int[]{keyCodeForward, keyCodeBack, keyCodeRight, keyCodeLeft};
     }
 
+    /**
+     * Start random move.
+     *
+     * @param ticks the current number of client ticks passed since last toggle on
+     */
     public void startRandomMove(int ticks)
     {
         int randomMoveKeyCode = movementKeyCodes[(int) Math.floor(Math.random() * 4)];
@@ -28,6 +39,9 @@ public class AntiAFK
         running = true;
     }
 
+    /**
+     * End random move.
+     */
     public void endRandomMove()
     {
         KeyBinding.setKeyBindState(currentRandomMove, false);
