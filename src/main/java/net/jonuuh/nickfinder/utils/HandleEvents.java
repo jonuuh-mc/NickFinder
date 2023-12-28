@@ -13,7 +13,7 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -167,7 +167,7 @@ public class HandleEvents
      * @param event the event
      */
     @SubscribeEvent
-    public void onClientDisconnectionFromServer(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
+    public void onClientDisconnectionFromServer(ClientDisconnectionFromServerEvent event)
     {
         if (running)
         {
