@@ -29,6 +29,7 @@ public class Finder
     private boolean running;
     private int nicks;
     private int ticks;
+    private int curLobby;
 
     Finder(Minecraft mc, Config config, ChatLogger chatLogger)
     {
@@ -38,6 +39,7 @@ public class Finder
         this.running = false;
         this.nicks = 0;
         this.ticks = 0;
+        this.curLobby = 0;
     }
 
     /**
@@ -52,6 +54,7 @@ public class Finder
             fileLoggerNicksLatest = new FileLogger("nicks-latest", false);
             ticks = 0;
             nicks = 0;
+            curLobby = 0; // TODO: make this the actual lobby /locraw
             MinecraftForge.EVENT_BUS.register(this);
             chatLogger.addLog("Start: new loggers, ticker + nicks reset, registered", EnumChatFormatting.YELLOW, false);
         }
@@ -80,9 +83,10 @@ public class Finder
 
             if (ticks % (20 * config.getAntiAFKDelaySecs()) == 0)
             {
-                chatLogger.addLog("Swapping lobby...", EnumChatFormatting.GRAY, false);
-                int randomLobby = ThreadLocalRandom.current().nextInt(config.getLobbyMin(), config.getLobbyMax() + 1);
-                mc.thePlayer.sendChatMessage("/swaplobby " + randomLobby);
+                int randLobby = ThreadLocalRandom.current().nextInt(config.getLobbyMin(), config.getLobbyMax());
+                randLobby = randLobby >= curLobby ? randLobby + 1 : randLobby; // silly style
+                chatLogger.addLog("Swapping lobby from " + curLobby + " to " + randLobby + "...", EnumChatFormatting.GRAY, false);
+                mc.thePlayer.sendChatMessage("/swaplobby " + randLobby);
             }
 
             if (ticks % (20 * config.getReqNickDelaySecs()) == 0)
