@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.scoreboard.ScorePlayerTeam;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,21 +15,21 @@ import java.util.List;
  */
 public class MiscUtils
 {
-    /**
-     * Gets a list of online players. (in the player's world)
-     *
-     * @return the list of online players
-     */
-    public List<String> getOnlinePlayers()
-    {
-        final Collection<NetworkPlayerInfo> networkPlayerInfoCollection = Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap();
-        List<String> onlinePlayers = new ArrayList<>();
-        for (NetworkPlayerInfo networkPlayerInfo : networkPlayerInfoCollection)
-        {
-            onlinePlayers.add(networkPlayerInfo.getGameProfile().getName());
-        }
-        return onlinePlayers;
-    }
+//    /**
+//     * Gets a list of online players. (in the player's world)
+//     *
+//     * @return the list of online players
+//     */
+//    public List<String> getOnlinePlayers()
+//    {
+//        final Collection<NetworkPlayerInfo> networkPlayerInfoCollection = Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap();
+//        List<String> onlinePlayers = new ArrayList<>();
+//        for (NetworkPlayerInfo networkPlayerInfo : networkPlayerInfoCollection)
+//        {
+//            onlinePlayers.add(getPlayerName(networkPlayerInfo));
+//        }
+//        return onlinePlayers;
+//    }
 
     /**
      * Gets a list of players within a distance from the player.
@@ -43,4 +44,9 @@ public class MiscUtils
         nearbyPlayers.remove(clientPlayer);
         return nearbyPlayers;
     }
+//
+//    private String getPlayerName(NetworkPlayerInfo networkPlayerInfoIn)
+//    {
+//        return networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getFormattedText() : ScorePlayerTeam.formatPlayerName(networkPlayerInfoIn.getPlayerTeam(), networkPlayerInfoIn.getGameProfile().getName());
+//    }
 }
