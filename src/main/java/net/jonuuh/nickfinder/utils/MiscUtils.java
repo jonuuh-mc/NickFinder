@@ -44,6 +44,7 @@ public class MiscUtils
         nearbyPlayers.remove(clientPlayer);
         return nearbyPlayers;
     }
+
 //
 //    private String getPlayerName(NetworkPlayerInfo networkPlayerInfoIn)
 //    {
