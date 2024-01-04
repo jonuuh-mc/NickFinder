@@ -1,9 +1,10 @@
 package net.jonuuh.nickfinder;
 
-import net.jonuuh.nickfinder.utils.HandleEvents;
+import net.jonuuh.nickfinder.events.FinderController;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -18,13 +19,15 @@ import java.io.File;
 public class NickFinder
 {
     public static final String MODID = "nickfinder";
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.1.0";
 
+    private final Minecraft mc;
     private final KeyBinding debugKey;
     private final KeyBinding toggleKey;
 
     public NickFinder()
     {
+        this.mc = Minecraft.getMinecraft();
         this.debugKey = new KeyBinding("Debug", Keyboard.KEY_MINUS, "NickFinder");
         this.toggleKey = new KeyBinding("Toggle NickFinder", Keyboard.KEY_EQUALS, "NickFinder");
     }
@@ -37,6 +40,6 @@ public class NickFinder
         ClientRegistry.registerKeyBinding(debugKey);
         ClientRegistry.registerKeyBinding(toggleKey);
 
-        FMLCommonHandler.instance().bus().register(new HandleEvents(debugKey, toggleKey));
+        MinecraftForge.EVENT_BUS.register(new FinderController(mc, debugKey, toggleKey));
     }
 }
