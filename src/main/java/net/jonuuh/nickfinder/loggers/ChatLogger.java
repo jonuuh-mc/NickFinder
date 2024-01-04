@@ -3,7 +3,6 @@ package net.jonuuh.nickfinder.loggers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 
 /**
@@ -11,20 +10,29 @@ import net.minecraft.util.EnumChatFormatting;
  */
 public class ChatLogger
 {
-    private static final String logPreString = "[NickFinder] > ";
-
-    private final ChatStyle logPreStyle = new ChatStyle();
-    private final ChatStyle logStyle = new ChatStyle();
+    private final ChatComponentText headerComp;
 
     /**
      * Instantiates a new ChatLogger.
      *
-     * @param preColor the log prefix color
+     * @param header  the ChatLogger's header
+     * @param mainC   the header main color
+     * @param accentC the header accent color
+     * @param isBold  whether the header is bold
      */
-    public ChatLogger(EnumChatFormatting preColor)
+    public ChatLogger(String header, EnumChatFormatting mainC, EnumChatFormatting accentC, boolean isBold)
     {
-        this.logPreStyle.setColor(preColor);
-        this.logPreStyle.setBold(true);
+        ChatComponentText headerComp = new ChatComponentText(header);
+        headerComp.getChatStyle().setColor(mainC).setBold(isBold);
+
+        ChatComponentText openBrComp = new ChatComponentText("[");
+        openBrComp.getChatStyle().setColor(accentC).setBold(isBold);
+
+        ChatComponentText closeBrComp = new ChatComponentText("] ");
+        closeBrComp.getChatStyle().setColor(accentC).setBold(isBold);
+
+        openBrComp.appendSibling(headerComp).appendSibling(closeBrComp);
+        this.headerComp = openBrComp;
     }
 
     /**
@@ -52,12 +60,9 @@ public class ChatLogger
             return;
         }
 
-        ChatComponentText logPreComponent = new ChatComponentText(logPreString);
-        ChatComponentText logComponent = new ChatComponentText(log);
+        ChatComponentText logComp = new ChatComponentText(log);
+        logComp.getChatStyle().setColor(color).setBold(isBold);
 
-        logPreComponent.setChatStyle(this.logPreStyle);
-        logComponent.setChatStyle(this.logStyle.setColor(color).setBold(isBold));
-
-        player.addChatMessage(logPreComponent.appendSibling(logComponent));
+        player.addChatMessage(headerComp.createCopy().appendSibling(logComp));
     }
 }
