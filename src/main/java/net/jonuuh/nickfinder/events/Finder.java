@@ -86,6 +86,7 @@ public class Finder
                 int randLobby = ThreadLocalRandom.current().nextInt(config.getLobbyMin(), config.getLobbyMax());
                 randLobby = randLobby >= curLobby ? randLobby + 1 : randLobby; // silly style
                 chatLogger.addLog("Swapping lobby from " + curLobby + " to " + randLobby + "...", EnumChatFormatting.GRAY, false);
+                curLobby = randLobby;
                 mc.thePlayer.sendChatMessage("/swaplobby " + randLobby);
             }
 
