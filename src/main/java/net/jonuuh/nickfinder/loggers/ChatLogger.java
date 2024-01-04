@@ -10,18 +10,21 @@ import net.minecraft.util.EnumChatFormatting;
  */
 public class ChatLogger
 {
+    private final Minecraft mc;
     private final ChatComponentText headerComp;
 
     /**
      * Instantiates a new ChatLogger.
      *
+     * @param mc      the minecraft object
      * @param header  the ChatLogger's header
      * @param mainC   the header main color
      * @param accentC the header accent color
      * @param isBold  whether the header is bold
      */
-    public ChatLogger(String header, EnumChatFormatting mainC, EnumChatFormatting accentC, boolean isBold)
+    public ChatLogger(Minecraft mc, String header, EnumChatFormatting mainC, EnumChatFormatting accentC, boolean isBold)
     {
+        this.mc = mc;
         ChatComponentText headerComp = new ChatComponentText(header);
         headerComp.getChatStyle().setColor(mainC).setBold(isBold);
 
@@ -54,7 +57,7 @@ public class ChatLogger
      */
     public void addLog(String log, EnumChatFormatting color, boolean isBold)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = mc.thePlayer;
         if (player == null)
         {
             return;

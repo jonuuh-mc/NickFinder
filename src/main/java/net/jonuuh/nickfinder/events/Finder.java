@@ -16,12 +16,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
 
 public class Finder
 {
     private final Minecraft mc;
-    private final Config config;
     private final ChatLogger chatLogger;
+    private final Config config;
 
     private FileLogger fileLoggerNicks;
     private FileLogger fileLoggerNicksLatest;
@@ -44,7 +45,7 @@ public class Finder
      */
     public void toggle()
     {
-        chatLogger.addLog("nickfinder toggled", EnumChatFormatting.GOLD, true);
+        chatLogger.addLog("NickFinder toggled", EnumChatFormatting.GOLD, true);
         if (!running)
         {
             fileLoggerNicks = new FileLogger("nicks", true);
@@ -52,14 +53,14 @@ public class Finder
             ticks = 0;
             nicks = 0;
             MinecraftForge.EVENT_BUS.register(this);
-            chatLogger.addLog("start: new loggers, ticker + nicks reset, registered", EnumChatFormatting.YELLOW, false);
+            chatLogger.addLog("Start: new loggers, ticker + nicks reset, registered", EnumChatFormatting.YELLOW, false);
         }
         else
         {
             fileLoggerNicks.close();
             fileLoggerNicksLatest.close();
             MinecraftForge.EVENT_BUS.unregister(this);
-            chatLogger.addLog("stop: loggers closed, unregistered", EnumChatFormatting.YELLOW, false);
+            chatLogger.addLog("Stop: loggers closed, unregistered", EnumChatFormatting.YELLOW, false);
         }
         running = !running;
     }
@@ -79,15 +80,15 @@ public class Finder
 
             if (ticks % (20 * config.getAntiAFKDelaySecs()) == 0)
             {
-                chatLogger.addLog("swapping lobby...", EnumChatFormatting.GRAY, false);
+                chatLogger.addLog("Swapping lobby...", EnumChatFormatting.GRAY, false);
                 int randomLobby = ThreadLocalRandom.current().nextInt(config.getLobbyMin(), config.getLobbyMax() + 1);
-                Minecraft.getMinecraft().thePlayer.sendChatMessage("swaplobby " + randomLobby);
+                mc.thePlayer.sendChatMessage("/swaplobby " + randomLobby);
             }
 
             if (ticks % (20 * config.getReqNickDelaySecs()) == 0)
             {
-                chatLogger.addLog("requesting new nick...", EnumChatFormatting.GRAY, false);
-                Minecraft.getMinecraft().thePlayer.sendChatMessage("nick help setrandom");
+                chatLogger.addLog("Requesting new nick...", EnumChatFormatting.GRAY, false);
+                mc.thePlayer.sendChatMessage("/nick help setrandom");
             }
         }
     }
@@ -103,7 +104,7 @@ public class Finder
     {
         if (event.gui instanceof GuiScreenBook)
         {
-            ItemStack bookItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
+            ItemStack bookItem = mc.thePlayer.getHeldItem();
             if (bookItem.getItem() instanceof ItemEditableBook)
             {
                 String bookPagesString = bookItem.getTagCompound().getTagList("pages", 8).toString();
@@ -114,10 +115,13 @@ public class Finder
                     fileLoggerNicks.addLogLn(nick);
                     fileLoggerNicksLatest.addLogLn(nick);
 
-                    if (nick.matches("^[A-Z][a-z]+$"))
+                    for (Pattern pattern : config.getTargetRegexps())
                     {
-                        Minecraft.getMinecraft().thePlayer.sendChatMessage("/nick actuallyset " + nick + " respawn");
-                        toggle();
+                        if (pattern.matcher(nick).find())
+                        {
+                            mc.thePlayer.sendChatMessage("/nick actuallyset " + nick + " respawn");
+                            toggle();
+                        }
                     }
                 }
             }
