@@ -1,10 +1,8 @@
 package net.jonuuh.nickfinder.config;
 
 import net.jonuuh.nickfinder.loggers.ChatLogger;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,46 +10,41 @@ import java.util.regex.Pattern;
 
 public class Config
 {
-    private final Minecraft mc;
-    private final ChatLogger chatLogger;
-
-    private Set<Pattern> targetRegexps;
-    private Set<String> limboStrings;
-    private double reqNickDelaySecs;
-    private double antiAFKDelaySecs;
+    private final Set<Pattern> targetPatterns;
+    private final Set<Pattern> filterPatterns;
+    private double nickDelaySecs;
+    private double afkDelaySecs;
     private int lobbyMin;
     private int lobbyMax;
 
-    public Config(Minecraft mc, ChatLogger chatLogger)
+    public Config()
     {
-        this.mc = mc;
-        this.chatLogger = chatLogger;
-        this.targetRegexps = new HashSet<>(Collections.singletonList(Pattern.compile("^[A-Z][a-z]+$")));
-        this.limboStrings = new HashSet<>(Arrays.asList("You are AFK. Move around to return from AFK.", "A kick occurred in your connection, so you have been routed to limbo!", "You were spawned in Limbo."));
-        this.reqNickDelaySecs = 1;
-        this.antiAFKDelaySecs = (60 * 2);
-        this.lobbyMin = 2;
-        this.lobbyMax = 10;
+        this.targetPatterns = new HashSet<>(Collections.singletonList(Pattern.compile("^[A-Z][a-z]+$")));
+        this.filterPatterns = new HashSet<>(Collections.singletonList(Pattern.compile("\\d")));
+        this.nickDelaySecs = 1;
+        this.afkDelaySecs = (60 * 4);
+        this.lobbyMin = 1;
+        this.lobbyMax = 4;
     }
 
-    public Set<Pattern> getTargetRegexps()
+    public Set<Pattern> getTargetPatterns()
     {
-        return targetRegexps;
+        return targetPatterns;
     }
 
-    public Set<String> getLimboStrings()
+    public Set<Pattern> getFilterPatterns()
     {
-        return limboStrings;
+        return filterPatterns;
     }
 
-    public double getReqNickDelaySecs()
+    public double getNickDelaySecs()
     {
-        return reqNickDelaySecs;
+        return nickDelaySecs;
     }
 
-    public double getAntiAFKDelaySecs()
+    public double getAFKDelaySecs()
     {
-        return antiAFKDelaySecs;
+        return afkDelaySecs;
     }
 
     public int getLobbyMin()
@@ -64,30 +57,14 @@ public class Config
         return lobbyMax;
     }
 
-    public boolean addTargetRegexp(Pattern targetRegexp)
+    public void setNickDelaySecs(double nickDelaySecs)
     {
-        boolean alreadyPresent = targetRegexps.stream().anyMatch(pattern -> pattern.pattern().equals(targetRegexp.pattern()));
-        return !alreadyPresent ? targetRegexps.add(targetRegexp) : false;
+        this.nickDelaySecs = nickDelaySecs;
     }
 
-    public boolean removeTargetRegexp(Pattern targetRegexp)
+    public void setAFKDelaySecs(double afkDelaySecs)
     {
-        return targetRegexps.removeIf(pattern -> pattern.pattern().equals(targetRegexp.pattern()));
-    }
-
-    public void clearTargetRegexps()
-    {
-        targetRegexps.clear();
-    }
-
-    public void setReqNickDelaySecs(double reqNickDelaySecs)
-    {
-        this.reqNickDelaySecs = reqNickDelaySecs;
-    }
-
-    public void setAntiAFKDelaySecs(double antiAFKDelaySecs)
-    {
-        this.antiAFKDelaySecs = antiAFKDelaySecs;
+        this.afkDelaySecs = afkDelaySecs;
     }
 
     public void setLobbyMin(int lobbyMin)
@@ -100,12 +77,48 @@ public class Config
         this.lobbyMax = lobbyMax;
     }
 
+    public boolean addTargetPattern(Pattern patternIn)
+    {
+        return isNotNull(patternIn) && targetPatterns.add(patternIn);
+    }
+
+    public boolean addFilterPattern(Pattern patternIn)
+    {
+        return isNotNull(patternIn) && filterPatterns.add(patternIn);
+    }
+
+    public boolean removeTargetPattern(Pattern patternIn)
+    {
+        return isNotNull(patternIn) && targetPatterns.removeIf(pattern -> pattern.pattern().equals(patternIn.pattern()));
+    }
+
+    public boolean removeFilterPattern(Pattern patternIn)
+    {
+        return isNotNull(patternIn) && filterPatterns.removeIf(pattern -> pattern.pattern().equals(patternIn.pattern()));
+    }
+
+    public void clearTargetPatterns()
+    {
+        targetPatterns.clear();
+    }
+
+    public void clearFilterPatterns()
+    {
+        filterPatterns.clear();
+    }
+
+    private boolean isNotNull(Pattern patternIn)
+    {
+        return patternIn != null;
+    }
+
     public void displayConfig()
     {
-        chatLogger.addLog("Target regexps: " + targetRegexps, EnumChatFormatting.BLUE, false);
-        chatLogger.addLog("Nick delay (secs): " + reqNickDelaySecs, EnumChatFormatting.BLUE, false);
-        chatLogger.addLog("AntiAFK delay (secs): " + antiAFKDelaySecs, EnumChatFormatting.BLUE, false);
-        chatLogger.addLog("Lobby min: " + lobbyMin, EnumChatFormatting.BLUE, false);
-        chatLogger.addLog("Lobby max: " + lobbyMax, EnumChatFormatting.BLUE, false);
+        ChatLogger.addLog("Target patterns: " + targetPatterns, EnumChatFormatting.BLUE);
+        ChatLogger.addLog("Filter patterns: " + filterPatterns, EnumChatFormatting.BLUE);
+        ChatLogger.addLog("Nick delay (secs): " + nickDelaySecs, EnumChatFormatting.BLUE);
+        ChatLogger.addLog("AFK delay (secs): " + afkDelaySecs, EnumChatFormatting.BLUE);
+        ChatLogger.addLog("Lobby min: " + lobbyMin, EnumChatFormatting.BLUE);
+        ChatLogger.addLog("Lobby max: " + lobbyMax, EnumChatFormatting.BLUE);
     }
 }

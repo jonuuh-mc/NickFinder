@@ -2,7 +2,7 @@
     {
         "modid": "nickfinder",
         "name": "NickFinder",
-        "description": "A mod to automatically find desirable nicknames on hypixel.\nOptions > Contols > NickFinder for keybinds, or try /nickfinder to change the config",
+        "description": "Automatically find specific nicknames on hypixel.\nOptions > Contols > NickFinder for keybinds, or try /nickfinder to change the config",
         "version": "${version}",
         "mcversion": "${mcversion}",
         "url": "",

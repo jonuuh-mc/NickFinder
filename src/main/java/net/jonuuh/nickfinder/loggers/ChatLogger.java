@@ -3,69 +3,34 @@ package net.jonuuh.nickfinder.loggers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 
-/**
- * Logs info client-side only in the in-game chat
- */
+import java.util.Arrays;
+
 public class ChatLogger
 {
-    private final Minecraft mc;
-    private final ChatComponentText headerComp;
+    private static final IChatComponent header = new ChatComponentText("\u00a76\u00a7l[\u00a78\u00a7lNickFinder\u00a76\u00a7l] ");
 
-    /**
-     * Instantiates a new ChatLogger.
-     *
-     * @param mc      the minecraft object
-     * @param header  the ChatLogger's header
-     * @param mainC   the header main color
-     * @param accentC the header accent color
-     * @param isBold  whether the header is bold
-     */
-    public ChatLogger(Minecraft mc, String header, EnumChatFormatting mainC, EnumChatFormatting accentC, boolean isBold)
+    public static void addLogs(String... logs)
     {
-        this.mc = mc;
-        ChatComponentText headerComp = new ChatComponentText(header);
-        headerComp.getChatStyle().setColor(mainC).setBold(isBold);
-
-        ChatComponentText openBrComp = new ChatComponentText("[");
-        openBrComp.getChatStyle().setColor(accentC).setBold(isBold);
-
-        ChatComponentText closeBrComp = new ChatComponentText("] ");
-        closeBrComp.getChatStyle().setColor(accentC).setBold(isBold);
-
-        openBrComp.appendSibling(headerComp).appendSibling(closeBrComp);
-        this.headerComp = openBrComp;
+        Arrays.stream(logs).forEach(ChatLogger::addLog);
     }
 
-    /**
-     * Add a log to the ChatLogger.
-     *
-     * @param log the log
-     */
-    public void addLog(String log)
+    public static void addLog(String log)
     {
-        addLog(log, EnumChatFormatting.WHITE, false);
+        addLog(log, EnumChatFormatting.WHITE);
     }
 
-    /**
-     * Add a log to the ChatLogger.
-     *
-     * @param log    the log
-     * @param color  the log color
-     * @param isBold whether the log is bold
-     */
-    public void addLog(String log, EnumChatFormatting color, boolean isBold)
+    public static void addLog(String log, EnumChatFormatting color)
     {
-        EntityPlayerSP player = mc.thePlayer;
-        if (player == null)
+        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+
+        if (player != null)
         {
-            return;
+            IChatComponent chatComponent = new ChatComponentText(log).setChatStyle(new ChatStyle().setColor(color));
+            player.addChatMessage(header.createCopy().appendSibling(chatComponent));
         }
-
-        ChatComponentText logComp = new ChatComponentText(log);
-        logComp.getChatStyle().setColor(color).setBold(isBold);
-
-        player.addChatMessage(headerComp.createCopy().appendSibling(logComp));
     }
 }
