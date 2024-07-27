@@ -13,7 +13,7 @@ Every time the config's nick delay time passes, the mod gets a new nickname, and
 A LOT can be said about the patterns, I chose to use regex as the way to find nicks because there are too many different nicks to make trying to find a specific one reasonable, doing a more general search makes more sense.\
 You can just google about regex, but I'll try to explain it\
 A regex pattern is just like a math expression, there are different symbols in it that mean different things.\
-When you give a program a regex and some text, it reads through both character by character, checking if each character of the text matches up with the text.\
+When you give a program a regex and some text, it reads through both character by character, checking if each character of the text matches up with the pattern.\
 Either every character of the text matches the pattern (match), or it doesnt (no match)
 
 Some useful symbols in regex:\
@@ -32,14 +32,14 @@ Theres a lot more but most of it doesn't matter. You can make and test regex her
 
 Ok, sorry about that. Heres why this actually matters for the mod.\
 Some examples of patterns you could use:\
-`/nickfinder addfilter \d` - prevents you from claiming any nicks with numbers (should be in config by default)\
-`/nickfinder addfilter _` - same thing as above but with underscores, lots of nicks use underscores to seperate words which is ugly so you can use this\
+`/nickfinder addfilter \d` - prevents you from claiming any nicks with numbers\
+`/nickfinder addfilter _` - same thing as above but with underscores\
 `/nickfinder addfilter [xX]{2}$` - prevents you from claiming any nicks with "xx", "xX" "XX", or "Xx" at the end
 
 `/nickfinder addtarget [Pp]hoenix` - claim any nick with "phoenix" or "Phoenix" case insensitive\
 `/nickfinder addtarget [Pp]h[o0][e3]n[i1]x` - same as above but lets some letters be replaced with numbers\
 `/nickfinder addtarget [Pp]hoenix$` - same thing but phoenix must be at the end of the nick\
-`/nickfinder addtarget ^[A-Z][a-z]+$` - claim any nick with one capital letter at the start followed by one or more lowercase letters to the end (extremely rare OG/old nick format, most people don't believe these can still generate today)\
+`/nickfinder addtarget ^[A-Z][a-z]+$` - claim any nick with one capital letter at the start followed by one or more lowercase letters to the end (extremely rare OG/old nick format)\
 `/nickfinder addtarget (^__)|(__$)` - claim any nick with two underscores at the start or end (cool slightly rare nick format)
 \
 \
@@ -61,7 +61,7 @@ Some nick formats:\
 "firstname num"   EX: rory333, emilia924\
 "word word number" EX: ItsKai449, theseb564, TonyChief3\
 "Xx words xX" EX: XxDoubleEpicxX, XxLilAndColdxX\
-"__ word" / "word __" (all letters replaced with nums?) EX: F14sh__, 0LIV3R__, l3g3nd4ry__, __STRANG3R\
+"__ word" / "word \__" (all letters replaced with nums?) EX: F14sh__, 0LIV3R__, l3g3nd4ry__, __STRANG3R\
 "Word" (one vowel repeated, dk if it can be all lowercase) EX: Brunooo, Liooon, Siiiimon, Maaaaaxi, Snoow
 
 [All words that can generate in a nick](https://github.com/jonuuh/NickFinder/blob/main/nick-words-final-length-alphabetical.txt)\
