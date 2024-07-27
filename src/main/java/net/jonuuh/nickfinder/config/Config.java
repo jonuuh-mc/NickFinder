@@ -1,10 +1,9 @@
 package net.jonuuh.nickfinder.config;
 
 import net.jonuuh.nickfinder.loggers.ChatLogger;
+import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -17,14 +16,14 @@ public class Config
     private int lobbyMin;
     private int lobbyMax;
 
-    public Config()
+    Config(Set<Pattern> targetPatterns, Set<Pattern> filterPatterns, double nickDelaySecs, double afkDelaySecs, int lobbyMin, int lobbyMax)
     {
-        this.targetPatterns = new HashSet<>(Collections.singletonList(Pattern.compile("^[A-Z][a-z]+$")));
-        this.filterPatterns = new HashSet<>(Collections.singletonList(Pattern.compile("\\d")));
-        this.nickDelaySecs = 1;
-        this.afkDelaySecs = (60 * 4);
-        this.lobbyMin = 1;
-        this.lobbyMax = 4;
+        this.targetPatterns = targetPatterns;
+        this.filterPatterns = filterPatterns;
+        this.nickDelaySecs = nickDelaySecs;
+        this.afkDelaySecs = afkDelaySecs;
+        this.lobbyMin = lobbyMin;
+        this.lobbyMax = lobbyMax;
     }
 
     public Set<Pattern> getTargetPatterns()
@@ -79,12 +78,12 @@ public class Config
 
     public boolean addTargetPattern(Pattern patternIn)
     {
-        return isNotNull(patternIn) && targetPatterns.add(patternIn);
+        return isNotNull(patternIn) && !containsPattern(targetPatterns, patternIn) && targetPatterns.add(patternIn);
     }
 
     public boolean addFilterPattern(Pattern patternIn)
     {
-        return isNotNull(patternIn) && filterPatterns.add(patternIn);
+        return isNotNull(patternIn) && !containsPattern(filterPatterns, patternIn) && filterPatterns.add(patternIn);
     }
 
     public boolean removeTargetPattern(Pattern patternIn)
@@ -112,13 +111,30 @@ public class Config
         return patternIn != null;
     }
 
+    private boolean containsPattern(Set<Pattern> set, Pattern patternIn)
+    {
+        for (Pattern pattern : set)
+        {
+            if (pattern.pattern().equals(patternIn.pattern()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void displayConfig()
     {
-        ChatLogger.addLog("Target patterns: " + targetPatterns, EnumChatFormatting.BLUE);
-        ChatLogger.addLog("Filter patterns: " + filterPatterns, EnumChatFormatting.BLUE);
-        ChatLogger.addLog("Nick delay (secs): " + nickDelaySecs, EnumChatFormatting.BLUE);
-        ChatLogger.addLog("AFK delay (secs): " + afkDelaySecs, EnumChatFormatting.BLUE);
-        ChatLogger.addLog("Lobby min: " + lobbyMin, EnumChatFormatting.BLUE);
-        ChatLogger.addLog("Lobby max: " + lobbyMax, EnumChatFormatting.BLUE);
+        ChatStyle headerStyle = new ChatStyle().setColor(EnumChatFormatting.BLUE).setStrikethrough(true);
+        ChatStyle style = new ChatStyle().setColor(EnumChatFormatting.AQUA);
+
+        ChatLogger.addCenteredLog(" NickFinder Config ", headerStyle, '-');
+        ChatLogger.addCenteredLog("Target patterns: " + targetPatterns, style, ' ');
+        ChatLogger.addCenteredLog("Filter patterns: " + filterPatterns, style, ' ');
+        ChatLogger.addCenteredLog("Nick delay (secs): " + nickDelaySecs, style, ' ');
+        ChatLogger.addCenteredLog("AFK delay (secs): " + afkDelaySecs, style, ' ');
+        ChatLogger.addCenteredLog("Lobby min: " + lobbyMin, style, ' ');
+        ChatLogger.addCenteredLog("Lobby max: " + lobbyMax, style, ' ');
+        ChatLogger.addCenteredLog("-", headerStyle, '-');
     }
 }

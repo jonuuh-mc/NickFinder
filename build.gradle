@@ -12,8 +12,8 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.2.3"
-group= "net.jonuuh.nickfinder"
+version = "1.2.4"
+group = "net.jonuuh.nickfinder"
 archivesBaseName = "NickFinder-1.8.9"
 
 sourceCompatibility = 1.8
@@ -37,9 +37,9 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
         // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'version': project.version, 'mcversion': project.minecraft.version
     }
-        
+
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'

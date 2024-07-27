@@ -1,18 +1,24 @@
-package net.jonuuh.nickfinder.events;
+package net.jonuuh.nickfinder.event;
 
 import net.jonuuh.nickfinder.config.Config;
+import net.jonuuh.nickfinder.config.ConfigHandler;
 import net.jonuuh.nickfinder.loggers.ChatLogger;
 import net.jonuuh.nickfinder.loggers.FileLogger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreenBook;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
@@ -20,40 +26,65 @@ public class Finder
 {
     private final Minecraft mc;
     private final Config config;
-    private final FileLogger nicksLog;
-    private final FileLogger nicksLatestLog;
-    private final Pattern nickPattern;
+    private final KeyBinding toggleKey;
+    private final Set<String> limboStrings = new HashSet<>(Arrays.asList("You are AFK. Move around to return from AFK.", "You were spawned in Limbo."));
+    private final Pattern nickPattern = Pattern.compile("\u00a7l\\w{3,16}\u00a7r"); // bold format code, 3-16 chars: [a-zA-Z0-9_], reset format code
 
+    private FileLogger nicksLog;
+    private FileLogger nicksLatestLog;
+    private boolean waitingForLoc;
     private int nicks;
     private int ticks;
     private int curLobby;
 
     boolean running;
 
-    Finder(Minecraft mc, Config config, FileLogger nicksLog, FileLogger nicksLatestLog, Pattern nickPattern, int startingLobby)
+    public Finder(KeyBinding toggleKey)
     {
-        this.mc = mc;
-        this.config = config;
-        this.nicksLog = nicksLog;
-        this.nicksLatestLog = nicksLatestLog;
-        this.nickPattern = nickPattern;
-        curLobby = startingLobby;
-        running = true;
+        this.mc = Minecraft.getMinecraft();
+        this.config = ConfigHandler.getInstance().getConfig();
+        this.toggleKey = toggleKey;
+        this.running = false;
     }
 
-    void stop()
+    @SubscribeEvent
+    public void onKeyInput(InputEvent.KeyInputEvent event)
     {
-        running = false;
-        nicksLog.close();
-        nicksLatestLog.close();
-        MinecraftForge.EVENT_BUS.unregister(this);
-        ChatLogger.addLog("NickFinder stopped", EnumChatFormatting.GOLD);
+        if (toggleKey.isPressed())
+        {
+            if (!running)
+            {
+                mc.thePlayer.sendChatMessage("/locraw");
+                waitingForLoc = true;
+            }
+            else
+            {
+                stop();
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onClientChatReceived(ClientChatReceivedEvent event)
+    {
+        String msg = event.message.getUnformattedText();
+
+        if (waitingForLoc && msg.matches("^\\{.+}$") && msg.contains("server") && msg.contains("gametype") && msg.contains("lobbyname"))
+        {
+            waitingForLoc = false;
+            start(msg);
+        }
+
+        if (running && limboStrings.contains(msg))
+        {
+            stop();
+        }
     }
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.END || mc.isGamePaused())
+        if (!running || event.phase == TickEvent.Phase.END || mc.isGamePaused())
         {
             return;
         }
@@ -80,7 +111,7 @@ public class Finder
     @SubscribeEvent
     public void onGuiOpened(GuiOpenEvent event)
     {
-        if (event.gui instanceof GuiScreenBook && mc.thePlayer.getHeldItem().getItem() instanceof ItemEditableBook)
+        if (running && event.gui instanceof GuiScreenBook && mc.thePlayer.getHeldItem().getItem() instanceof ItemEditableBook)
         {
             event.setCanceled(true);
         }
@@ -132,6 +163,45 @@ public class Finder
     @SubscribeEvent
     public void onClientDisconnectionFromServer(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
-        stop();
+        if (running)
+        {
+            stop();
+        }
+    }
+
+    private void start(String loc)
+    {
+        running = true;
+        nicksLog = new FileLogger("nicks", true);
+        nicksLatestLog = new FileLogger("nicks-latest", false);
+        curLobby = parseStartingLobby(loc);
+        ChatLogger.addLog("NickFinder started", EnumChatFormatting.GOLD);
+    }
+
+    private void stop()
+    {
+        running = false;
+        nicksLog.close();
+        nicksLatestLog.close();
+        ChatLogger.addLog("NickFinder stopped", EnumChatFormatting.GOLD);
+    }
+
+    private int parseStartingLobby(String loc)
+    {
+        int lobby = 0;
+
+        try
+        {
+            String match = "lobbyname";
+            String lobbyStr = loc.substring(loc.indexOf(match) + match.length()).replaceAll("\\D+", "");
+            lobby = Integer.parseInt(lobbyStr);
+        }
+        catch (IndexOutOfBoundsException | NumberFormatException e) // both RuntimeException
+        {
+            e.printStackTrace();
+            ChatLogger.addLog("Unable to parse starting lobby", EnumChatFormatting.DARK_RED);
+        }
+
+        return lobby;
     }
 }
