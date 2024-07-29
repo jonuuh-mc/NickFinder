@@ -1,18 +1,22 @@
-## NickFinder
+# NickFinder
 
-A mod to automatically find nicknames on hypixel.\
-This mod is not user friendly at all (i didn't plan to release this mod), so I'm writing a little essay about how it works.
+A mod/bot to automatically find nicknames on hypixel
 
-The mod uses regular expression (regex) patterns (like math expressions used to differentiate between different pieces of text) to find nicks.\
-The mod has two types of patterns, targets (types of nicks you want) and filters (types of nicks you dont want).\
-For example if you want a nick with `Batman` without the number `5` in it, you could put `Batman` in your targets and `5` in your filters.
-
-When you toggle the mod on, it will automatically get nicknames from hypixel forever until it finds one that both matches a target pattern and doesn't match any filter patterns (or if you get disconnected/sent to limbo).\
+<img src="https://github.com/user-attachments/assets/bf7f3b18-b3e5-4868-b6bb-05704442ba60" width="250"/>\
+When you claim or generate nicks by clicking "USE NAME" / "TRY AGAIN", you're just sending commands:\
+`/nick actuallyset <nickname> respawn` / `/nick help setrandom`.\
+When you start the bot, it uses these commands to try to generate nicks forever until it finds one you want (matches a target pattern and doesn't match any filter patterns), which it then claims.\
 Every time the config's nick delay time passes, the mod gets a new nickname, and every time the config's antiafk delay time passes, it will swap to a different lobby from the config's lobbymin to lobbymax (both inclusive).
 
-A LOT can be said about the patterns, I chose to use regex as the way to find nicks because there are too many different nicks to make trying to find a specific one reasonable, doing a more general search makes more sense.\
-You can just google about regex, but I'll try to explain it\
-A regex pattern is just like a math expression, there are different symbols in it that mean different things.\
+The mod uses regular expression (regex) patterns to find nicks.\
+There are two types of patterns, targets (types of nicks you want) and filters (types of nicks you dont want).\
+For example if you want a nick containing `Batman` and no number `5` in it, you could put `Batman` in your targets and `5` in your filters.\
+<sub>Note: Target patterns don't 'stack', but filter patterns do. The mod will claim a nick that matches ONE of the target patterns and doesn't match ALL of the filter patterns.\
+This means if you put `Cookie` and `.{12}` (anything 12 characters long) in your targets, the mod will claim any nick that has "Cookie" OR any nick that is 12 char long, not both at once.\
+But if you put the same in your filters, the mod will avoid anything with "Cookie" AND anything twelve char long.</sub>
+
+A LOT can be said about the patterns, I chose to use regex as the way to find nicks because there are too many different nicks to try to find a specific one, doing a more general search makes more sense.\
+A regex pattern is like a math expression used to differentiate between pieces of text. There are different symbols in it that mean different things.\
 When you give a program a regex and some text, it reads through both character by character, checking if each character of the text matches up with the pattern.\
 Either every character of the text matches the pattern (match), or it doesnt (no match)
 
