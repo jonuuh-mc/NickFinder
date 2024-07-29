@@ -3,20 +3,25 @@
 A mod/bot to automatically find nicknames on hypixel
 
 <img src="https://github.com/user-attachments/assets/bf7f3b18-b3e5-4868-b6bb-05704442ba60" width="250"/>\
-When you claim or generate nicks by clicking "USE NAME" / "TRY AGAIN", you're just sending commands:\
-`/nick actuallyset <nickname> respawn` / `/nick help setrandom`.\
-When you start the bot, it uses these commands to try to generate nicks forever until it finds one you want (matches a target pattern and doesn't match any filter patterns), which it then claims.\
-Every time the config's nick delay time passes, the mod gets a new nickname, and every time the config's antiafk delay time passes, it will swap to a different lobby from the config's lobbymin to lobbymax (both inclusive).
+When you claim or generate nicks by clicking "USE NAME" / "TRY AGAIN", you're just sending commands: `/nick actuallyset <nickname> respawn` / `/nick help setrandom`.\
+When you toggle the bot (default keybind is `=`), it uses these commands to try to generate nicks forever until it finds one you want (matches a target pattern and doesn't match any filter patterns), which it then claims.
 
-The mod uses regular expression (regex) patterns to find nicks.\
-There are two types of patterns, targets (types of nicks you want) and filters (types of nicks you dont want).\
-For example if you want a nick containing `Batman` and no number `5` in it, you could put `Batman` in your targets and `5` in your filters.\
+#### Config:
+- Targets: Regex patterns for nicks you want to find
+- Filters: Regex patterns for nicks you want to avoid
+- Nick delay: Time between 'generating' each nick
+- AFK delay: Time between antiAFK (swaps to a different random lobby from lobbyMin to lobbyMax)
+- Lobby min: Min lobby number you can swap to (inclusive)
+- Lobby min: Max lobby number you can swap to (inclusive)
+
+The mod uses regular expression (regex) patterns to find nicks, but you don't need to know anything about them to use the mod. You'll just be able to do more with the mod if you do.\
+For example if you just want a nick containing `Batman` and not containing `5` in it, you could put `Batman` in your targets and `5` in your filters.\
 <sub>Note: Target patterns don't 'stack', but filter patterns do. The mod will claim a nick that matches ONE of the target patterns and doesn't match ALL of the filter patterns.\
 This means if you put `Cookie` and `.{12}` (anything 12 characters long) in your targets, the mod will claim any nick that has "Cookie" OR any nick that is 12 char long, not both at once.\
-But if you put the same in your filters, the mod will avoid anything with "Cookie" AND anything twelve char long.</sub>
+But if you put the same in your filters, the mod will avoid anything with "Cookie" AND anything 12 char long.</sub>
 
-A LOT can be said about the patterns, I chose to use regex as the way to find nicks because there are too many different nicks to try to find a specific one, doing a more general search makes more sense.\
-A regex pattern is like a math expression used to differentiate between pieces of text. There are different symbols in it that mean different things.\
+I chose to use regex as the way to find nicks because there are too many different nicks to try to find a really specific one, regex lets you do a more general search.\
+A regex pattern is like a math expression used to differentiate between pieces of text. There are different symbols in one that mean different things.\
 When you give a program a regex and some text, it reads through both character by character, checking if each character of the text matches up with the pattern.\
 Either every character of the text matches the pattern (match), or it doesnt (no match)
 
@@ -34,39 +39,54 @@ Some useful symbols in regex:\
 `\` means "take the next character literally if its a symbol that means something else like `+`" *Examples: `hello\.?` means "hello with an optional . at the end"*\
 Theres a lot more but most of it doesn't matter. You can make and test regex here: https://regex101.com/
 
-Ok, sorry about that. Heres why this actually matters for the mod.\
-Some examples of patterns you could use:\
+Here are some examples of regex patterns you could use:\
 `/nickfinder addfilter \d` - prevents you from claiming any nicks with numbers\
 `/nickfinder addfilter _` - same thing as above but with underscores\
-`/nickfinder addfilter [xX]{2}$` - prevents you from claiming any nicks with "xx", "xX" "XX", or "Xx" at the end
+`/nickfinder addfilter [xX]{2}$` - prevents you from claiming any nicks with "xx", "xX" "XX", or "Xx" at the end of the nick
 
 `/nickfinder addtarget [Pp]hoenix` - claim any nick with "phoenix" or "Phoenix" case insensitive\
 `/nickfinder addtarget [Pp]h[o0][e3]n[i1]x` - same as above but lets some letters be replaced with numbers\
 `/nickfinder addtarget [Pp]hoenix$` - same thing but phoenix must be at the end of the nick\
 `/nickfinder addtarget ^[A-Z][a-z]+$` - claim any nick with one capital letter at the start followed by one or more lowercase letters to the end (extremely rare OG/old nick format)\
-`/nickfinder addtarget (^__)|(__$)` - claim any nick with two underscores at the start or end (cool slightly rare nick format)
-\
-\
-\
-Some more random stuff about nicks, i might add more later
+`/nickfinder addtarget (^__)|(__$)` - claim any nick with two underscores at the start or end (another rare nick format, 1 in a few thousand?)
 
-Letters that can be replaced with numbers:\
+
+## Other stuff
+
+[All* words that can generate in a nick](https://github.com/jonuuh/NickFinder/blob/main/nick-words-final-length-alphabetical.txt) <sub>*maybe</sub>\
+[Log of 1 million nicks](https://github.com/jonuuh/NickFinder/blob/main/nicks-1M.log)
+
+### Is this allowed?
+No 100% not, use it at your own risk.
+It would be obvious to any admin looking at your logs.\
+<sub>I've probably botted through 2,000,000+ nicks at this point with no ban so it seems unlikely</sub>
+
+### Recommended place to afk?
+I think main lobbies 1-4 are the best place right now, the main lobby has an afk timer of 5mins (lower in many other lobbies) and lobbies 1-4 usually have stacks of players sitting in the spawnpoint.\
+All someone would see is a book flashing in the hand of one of the stacked players at spawn.
+
+### Letters in a nick that can be replaced with numbers
 i, l -> 1\
 o -> 0\
 a -> 4\
 e -> 3
 
-Some nick formats:\
+### Possible nick formats?
 "word and word" EX: True_and_Shot, Sma11AndSpeedy\
 "word word word" EX: TheFuriousQueen, NiceBillyOwl\
-"word word"  EX: ToxicSniper. Crafty_Aqua\
-"firstname lastname year"   EX: tommyross2006, JakePrice2004\
-"firstname lastinitial year"   EX: elsiem2011, florenceb2004\
-"firstname num"   EX: rory333, emilia924\
+"word word"  EX: ToxicSniper, Crafty_Aqua\
+"firstname lastname year" EX: tommyross2006, JakePrice2004\
+"firstname lastinitial year" EX: elsiem2011, florenceb2004\
+"firstname num" EX: rory333, emilia924\
 "word word number" EX: ItsKai449, theseb564, TonyChief3\
 "Xx words xX" EX: XxDoubleEpicxX, XxLilAndColdxX\
 "__ word" / "word \__" (all letters replaced with nums?) EX: F14sh__, 0LIV3R__, l3g3nd4ry__, __STRANG3R\
-"Word" (one vowel repeated, dk if it can be all lowercase) EX: Brunooo, Liooon, Siiiimon, Maaaaaxi, Snoow
+"word" (one vowel repeated, dk if it can be all lowercase) EX: Brunooo, Liooon, Siiiimon, Maaaaaxi, Snoow\
+<sub>OG/old nick format rarity seems to be about 1 in a few 100k, that might change though if more get claimed,\
+part of why they're so rare is probably because most are already claimed by old/inactive players</sub>
 
-[All words that can generate in a nick](https://github.com/jonuuh/NickFinder/blob/main/nick-words-final-length-alphabetical.txt)\
-[Log of 1 million nicks](https://github.com/jonuuh/NickFinder/blob/main/nicks-1M.log)
+### Repeating nicks?
+If you've noticed that sometimes you'll run into the same nick multiple times while botting, its probably because of [caching](https://www.google.com/search?q=what+is+caching).\
+An example to explain what caching is: If you ask the server to generate you 1000 nicks two times, the second time would be a lot eaiser for the server if it stored (cached) some of the nicks from the first time, and reused them in the second 1000 nicks.\
+I don't know much specifically about it (like how many nicks can be in your cache, when they get added or removed from the cache, etc) but this is probably why you find repeat nicks.\
+<sub>this also assumes that nicks are 'generated' at all, it seems way less likely but its possible they're all already pre-generated and read from a big list</sub>
