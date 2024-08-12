@@ -1,6 +1,7 @@
 # NickFinder
 
-A mod/bot to automatically find nicknames on hypixel
+A mod/bot to automatically find nicknames on hypixel\
+[Downloads (.jar file, not 'Source code')](https://github.com/jonuuh/NickFinder/releases)
 
 <img src="https://github.com/user-attachments/assets/bf7f3b18-b3e5-4868-b6bb-05704442ba60" width="200"/>\
 When you claim or generate nicks normally by clicking "USE NAME" / "TRY AGAIN" in a book, you're just sending commands: `/nick actuallyset <nickname> respawn` / `/nick help setrandom`.\
