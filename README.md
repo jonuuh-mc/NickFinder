@@ -30,7 +30,7 @@ If it finds a nick you're looking for, it will claim it with `/nick actuallyset 
 \
 For example if you just want a nick containing `Batman` and not containing `5` in it, you could put `Batman` in your targets and `5` in your filters.
 > <sub> Target patterns don't 'stack', but filter patterns do. The mod will claim a nick that does match ONE of the target patterns and doesn't match ANY of the filter patterns.\
-This means if you put `Cookie` and `.{12}` (anything 12 characters long) in your targets, the mod will claim any nick that has "Cookie" OR any nick that is 12 char long, not both at once.
+This means if you put `Cookie` and `^.{12}$` (anything 12 characters long) in your targets, the mod will claim any nick that has "Cookie" OR any nick that is 12 char long, not both at once.
 But if you put the same in your filters, the mod will avoid anything with "Cookie" AND anything 12 char long. </sub>
 
 \
