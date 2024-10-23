@@ -1,7 +1,7 @@
 # NickFinder
 
 A mod/bot to automatically find nicknames on hypixel\
-[Downloads (.jar file, not 'Source code')](https://github.com/jonuuh/NickFinder/releases)
+[Downloads (.jar file, not 'Source code')](https://github.com/jonuuh-mc/NickFinder/releases)
 
 <img src="https://github.com/user-attachments/assets/bf7f3b18-b3e5-4868-b6bb-05704442ba60" width="200"/>\
 When you claim or generate nicks normally by clicking "USE NAME" / "TRY AGAIN" in a book, you're just sending commands: `/nick actuallyset <nickname> respawn` / `/nick help setrandom`.\
@@ -80,8 +80,8 @@ There's a lot more but most of it doesn't matter. You can make and test regex he
 
 ## Other stuff
 
-[All* words that can generate in a nick](https://github.com/jonuuh/NickFinder/blob/main/nick-words-final-length-alphabetical.txt) <sub>*probably close to if not perfect as long as staff don't add/remove any</sub>\
-[Log of 1 million nicks](https://github.com/jonuuh/NickFinder/blob/main/nicks-1M.log)
+[All* words that can generate in a nick](https://github.com/jonuuh-mc/NickFinder/blob/main/nick-words-final-length-alphabetical.txt) <sub>*probably close to if not perfect as long as staff don't add/remove any</sub>\
+[Log of 1 million nicks](https://github.com/jonuuh-mc/NickFinder/blob/main/nicks-1M.log)
 
 ### Is this allowed?
 No 100% not, use it at your own risk. It should be obvious to any staff looking at your logs.\
