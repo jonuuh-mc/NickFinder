@@ -115,7 +115,7 @@ Letter | Number
 | `WordWordNumber`           | `ItsKai449` `theseb564` `TonyChief3`                                 |
 | `__Word` / `Word__`        | `F14sh__` `l3g3nd4ry__` `B14d3__` `0LIV3R__`                         | ~1/10k rarity? chance of nums replacing letters is way higher for this format, also this & below format are the only ones that can have fully caps words
 | `_Word` / `Word_`          | `_W0R1D` `_3m3rald` `HUNT3R_`                                        | ~1/10k rarity? chance of nums replacing letters is way higher for this format
-| `Word`                     | `Brunooo` `Liooon` `Raaaanger` `Siiimon` `Bruuuh` `Snooow` `Maaaaxi` | the OG/old nick format: one nick word with a vowel repeated. don't think it can be all lowercase/uppercase or have nums replacing letters. avg rarity seems to be around 1/200k. part of why they're so rare might be because many are already held by old inactive players?
+| `Word`                     | `Brunooo` `Liooon` `Raaaanger` `Siiimon` `Bruuuh` `Snooow` `Maaaaxi` `Endddd` | the OG/old nick format: one nick word with a letter repeated (usually a vowel). don't think it can be all lowercase/uppercase or have nums replacing letters. avg rarity seems to be around 1/200k. part of why they're so rare might be because many are already held by old inactive players?
 
 ### Repeating nicks?
 If you've noticed that sometimes you'll run into the same nick multiple times, its probably because of [caching](https://www.google.com/search?q=what+is+caching).\
